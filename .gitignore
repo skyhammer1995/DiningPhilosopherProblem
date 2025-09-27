@@ -1,0 +1,43 @@
+# =========================
+# C/C++ build artifacts
+# =========================
+/build/
+/bin/
+*.o
+*.obj
+*.d
+*.exe
+
+# Coverage files
+*.gcda
+*.gcno
+*.gcov
+/cvg/
+.coverage
+
+# =========================
+# Python environment
+# =========================
+/venv/
+/env/
+__pycache__/
+/*.py[cod]
+*.pyo
+
+# =========================
+# Editor / IDE files
+# =========================
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# =========================
+# Logs and temporary files
+# =========================
+*.log
+*.tmp
+*.bak
