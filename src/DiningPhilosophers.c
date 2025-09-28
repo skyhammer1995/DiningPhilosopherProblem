@@ -129,6 +129,7 @@ int init_philosophers(simulation_t *sim) {
         return -1;
     }
 
+    // Set pthread thread_id member when creating the threads in start_simulation()
     for (int i = 0; i < sim->num_philosophers; ++i) {
         sim->philosophers[i].id = i;
         sim->philosophers[i].state = THINKING;
