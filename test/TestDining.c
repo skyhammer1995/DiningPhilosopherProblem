@@ -72,7 +72,7 @@ static void test_init_hashi_and_philosophers(void **state) {
         assert_int_equal(p->id, i);
         assert_ptr_equal(p->left_hashi, &sim->hashi[i]);
         assert_ptr_equal(p->right_hashi, &sim->hashi[(i + 1) % sim->num_philosophers]);
-        assert_int_equal(p->state, THINKING);
+        assert_int_equal(atomic_load(&p->state), THINKING);
         assert_int_equal(p->violation_flag, OK);
     }
 }

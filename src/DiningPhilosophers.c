@@ -26,9 +26,10 @@ void *philosopher_routine(void *arg) {
         if (pthread_mutex_trylock(p->left_hashi) == 0) {         // Try to pick up left/personal hashi
             if (pthread_mutex_trylock(p->right_hashi) == 0) {    // Try to pick up right/neighbor's hashi
                 // EAT
-                p->state = EATING;
+                atomic_store(&p->state, EATING);
                 // This technically should not happen since we'd need to have the mutexes available to get here. 
-                if (sim->philosophers[left_neighbor].state == EATING || sim->philosophers[right_neighbor].state == EATING) {
+                if (atomic_load(&sim->philosophers[left_neighbor].state) == EATING || 
+                    atomic_load(&sim->philosophers[right_neighbor].state) == EATING) {
                     printf("Philosopher %d ate with his hands, GROSS! (violation)\n", p->id);
                     p->violation_flag = VIOLATION;
                 }
@@ -38,7 +39,7 @@ void *philosopher_routine(void *arg) {
                 printf("Philosopher %d stops eating\n", p->id);
 
                 // RESET
-                p->state = THINKING;
+                atomic_store(&p->state, THINKING);
                 p->starvation_counter = 0;
 
                 // RELEASE HASHI
@@ -72,13 +73,13 @@ void *single_philosopher_routine(void *arg) {
         pthread_mutex_trylock(p->left_hashi); // only possible hashi (we could technically just use lock)
         
         // EATING
-        p->state = EATING;
+        atomic_store(&p->state, EATING);
         printf("Philosopher %d starts eating (single-philosopher mode)\n", p->id);
         sleep_ms(rand() % 1000 + 500);
         printf("Philosopher %d stops eating (single-philosopher mode)\n", p->id);
         
         // RESET
-        p->state = THINKING;
+        atomic_store(&p->state, THINKING);
         
         // RELEASE SINGLE HASHI
         pthread_mutex_unlock(p->left_hashi);
@@ -132,7 +133,7 @@ int init_philosophers(simulation_t *sim) {
     // Set pthread thread_id member when creating the threads in start_simulation()
     for (int i = 0; i < sim->num_philosophers; ++i) {
         sim->philosophers[i].id = i;
-        sim->philosophers[i].state = THINKING;
+        atomic_store(&sim->philosophers[i].state, THINKING);
         sim->philosophers[i].left_hashi = &sim->hashi[i];
         sim->philosophers[i].right_hashi = &sim->hashi[(i + 1) % sim->num_philosophers];
         sim->philosophers[i].starvation_counter = 0;
