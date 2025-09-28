@@ -23,7 +23,7 @@ typedef struct {
     int id;                                     // logging and easy identification
     pthread_mutex_t *left_hashi;                // keep left mutex
     pthread_mutex_t *right_hashi;               // keep right mutex
-    philosopher_state_t state;                  // philosopher state used in testing mainly
+    _Atomic philosopher_state_t state;          // philosopher state used in testing mainly. can be checked by other threads, so atomic
     violation_detection_t violation_flag;       // violation detection flag for if eating while neighbor is eating
     int starvation_counter;                     // number of cycles without eating
     pthread_t thread_id;                        // thread identifier (don't use for math/only use for thread starting/joining etc.)
