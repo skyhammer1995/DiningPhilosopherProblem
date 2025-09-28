@@ -43,26 +43,27 @@ int main (int argc, char *argv[]) {
 
     simulation_t *sim = malloc(sizeof(simulation_t));
     if (!sim) {
-        fprintf(stderr, "ERROR: Failed to allocate simulation\n");
+        fprintf(stderr, "ERROR: Failed to allocate for simulation\n");
         return EXIT_FAILURE;
     }
 
     sim->num_philosophers = num_philosophers;
     atomic_init(&sim->stop_flag, false);
 
-    // Allocate the philosophers(thread) & hashi(mutex) arrays
+    // Allocate the hashi(mutex) array
     sim->hashi = malloc(sizeof(pthread_mutex_t) * sim->num_philosophers);
     if (!sim->hashi) {
-        fprintf(stderr, "ERROR: Failed to allocate philosophers\n");
+        fprintf(stderr, "ERROR: Failed to allocate for hashi\n");
         free(sim->hashi);
         free(sim);
 
         return EXIT_FAILURE;
     }
-    
+
+  // Allocate the philosophers(thread) array
     sim->philosophers = malloc(sizeof(philosopher_t) * sim->num_philosophers);
     if (!sim->philosophers) {
-        fprintf(stderr, "ERROR: Failed to allocate philosophers\n");
+        fprintf(stderr, "ERROR: Failed to allocate for philosophers\n");
         free(sim->philosophers);
         free(sim->hashi);
         free(sim);
@@ -70,9 +71,10 @@ int main (int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+    // API Call
     int rc = start_simulation(sim, duration_seconds);
 
-    // Free memory after simulation ends
+    // Free memory after simulation ends -- we want callers responsible for their memory management
     free(sim->philosophers);
     free(sim->hashi);
     free(sim);
