@@ -60,7 +60,7 @@ int main (int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-  // Allocate the philosophers(thread) array
+    // Allocate the philosophers(thread) array
     sim->philosophers = malloc(sizeof(philosopher_t) * sim->num_philosophers);
     if (!sim->philosophers) {
         fprintf(stderr, "ERROR: Failed to allocate for philosophers\n");

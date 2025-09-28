@@ -151,7 +151,8 @@ int start_simulation(simulation_t *sim, int duration_seconds) {
 
     /* 
         The original spirit/semantics of Dining Philosophers say that a single philosopher should not be eating,
-        but requirements are saying he should, and he has no neighbors to worry about. Any kind of edge case like this
+        but requirements are saying he should (or are at least ambiguous enough to say he should), 
+        and he has no neighbors to worry about. Any kind of edge case like this
         could have been clarified (like what ranges are possible/expected for this to scale up and down to) at the 
         High Level Requirements discussion stage.
     */

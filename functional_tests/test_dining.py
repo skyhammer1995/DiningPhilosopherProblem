@@ -9,6 +9,7 @@ import sys
 import re
 import pytest
 
+# pytest documentation ref: https://docs.pytest.org/en/stable/how-to/usage.html
 
 # Path to your binary
 BINARY = "./bin/diningPhilosophers"
