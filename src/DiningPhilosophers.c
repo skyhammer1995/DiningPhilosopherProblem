@@ -27,6 +27,7 @@ void *philosopher_routine(void *arg) {
             if (pthread_mutex_trylock(p->right_hashi) == 0) {    // Try to pick up right/neighbor's hashi
                 // EAT
                 p->state = EATING;
+                // This technically should not happen since we'd need to have the mutexes available to get here. 
                 if (sim->philosophers[left_neighbor].state == EATING || sim->philosophers[right_neighbor].state == EATING) {
                     printf("Philosopher %d ate with his hands, GROSS! (violation)\n", p->id);
                     p->violation_flag = VIOLATION;
