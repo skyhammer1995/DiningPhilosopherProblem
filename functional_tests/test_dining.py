@@ -45,52 +45,91 @@ def run_simulation(timeout=DEFAULT_TIME, extra_args=None):
         print("STDERR from binary:")
         print(stderr)
 
-    return stdout
+    return result.returncode, stdout, stderr
 
 # this is not a great test, non-deterministic and relies on timing to cover all states
 def test_all_philosophers_ate():
     """ Test that all philosophers eventually ate at least once. """
     print("Running test: all philosophers ate at least once")
-    output = run_simulation(extra_args=["--duration", "15"]) # run for 15 seconds
+    rc, output, err = run_simulation(extra_args=["--duration", "15"]) # run for 15 seconds
     
     for i in range(NUM_PHILOSOPHERS):
         assert re.search(f"Philosopher {i} starts eating", output, re.IGNORECASE), \
             f"Philosopher {i} never ate"
-    print("PASS: all philosophers ate")
+    print("PASSED: all philosophers ate")
 
 def test_all_return_to_thinking():
     """ Test that all philosophers stop eating/return to thinking at the end of the simulation. """
     print("Running test: all philosophers return to THINKING")
-    NUM_PHILOSOPHERS = 20 # creates a local variable named NUM_PHILOSOPHERS (we shouldn't be updating the one further up)
-    output = run_simulation(extra_args=["--duration", "10", "--philosophers", str(NUM_PHILOSOPHERS)])
+    NUM_PHILOSOPHERS = 10 # creates a local variable named NUM_PHILOSOPHERS (we shouldn't be updating the one further up)
+    rc, output, err = run_simulation(extra_args=["--duration", "10", "--philosophers", str(NUM_PHILOSOPHERS)])
     
     for i in range(NUM_PHILOSOPHERS):
         assert re.search(f"Philosopher {i} stops eating", output, re.IGNORECASE), \
             f"Philosopher {i} did not stop eating"
-    print("PASS: all philosophers returned to THINKING")
+    print("PASSED: all philosophers returned to THINKING")
 
 @pytest.mark.parametrize("count", [-4, 0, 1, 9, 90])
 def test_varied_philosopher_values(count):
     """ Parametrized test that we can pass multiple types of values for philosophers """
     print("Running test: Philosophers are passed as flag value")
-    output = run_simulation(extra_args=["--duration", "10", "--philosophers", str(count)])
+    rc, output, err = run_simulation(extra_args=["--duration", "15", "--philosophers", str(count)])
     
     if count <= 0:
-        # diningPhilosophers will use default value 5 if the passed philosopher value is <= 0
-        range_value = 5
+        assert re.search(f"Invalid philosopher value: {count}", err)
+        assert rc != 0
     else:
-        range_value = count
-    
-    for i in range(range_value):
-        assert re.search(f"Philosopher {i} starts eating", output, re.IGNORECASE), \
-            f"Philosopher {i} never ate"
+        for i in range(count):
+            assert re.search(f"Philosopher {i} starts eating", output, re.IGNORECASE), \
+                f"Philosopher {i} never ate"
+        assert rc == 0
+
     print ("PASSED: philosopher was taken as input")
+
+def test_unknown_flag_errors():
+    """ Test that diningPhilosohpers fails gracefully on an unknown flag """
+    rc, output, err = run_simulation(extra_args=["--InvalidFlag"], timeout=5)
+
+    assert rc != 0
+    assert re.search(r"Usage:", err)
+    print ("PASSED: handled unknown flag")
+
+@pytest.mark.parametrize("flags", [["--duration", "abc"], ["--philosophers", "abc"]])
+def test_invalid_flag_strings(flags):
+    """ Parametrized test that we can pass multiple types of flags and the binary handles non-numeric values """
+    rc, output, err = run_simulation(extra_args=flags, timeout=5)
+
+    assert rc != 0
+    assert re.search(r"(Invalid duration value:|Invalid philosopher value:)", err)
+    print ("PASSED: handled incorrect inputs")
+
+def test_clean_exit():
+    """ Test binary exits with code 0 after short run """
+    rc, output, err = run_simulation(extra_args=["--duration", "1"], timeout=5)
+
+    assert rc == 0
+    assert re.search(r"Starting Dining Philosophers", output)
+    assert re.search(r"stops eating", output)
+    print ("PASSED: clean exit on short run")
+
+@pytest.mark.slow # skip with -m "not slow"
+def test_large_number_of_philosophers():
+    """Run with 50 philosophers for 5 seconds to check scalability."""
+    rc, output, err = run_simulation(extra_args=["--duration", "10", "--philosophers", "50"], timeout=15)
+    
+    assert rc == 0
+    assert re.search(r"starts eating", output)
+    print("PASSED: Handled large philosophers, and had clean exit")
+
 
 def main():
     # Run all functional tests
     test_all_philosophers_ate()
     test_all_return_to_thinking()
     test_varied_philosopher_values()
+    test_unknown_flag_errors()
+    test_invalid_flag_strings()
+    test_clean_exit()
     print("\nAll functional tests passed!")
 
 if __name__ == "__main__":

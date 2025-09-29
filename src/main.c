@@ -18,29 +18,42 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <limits.h>
 
 int main (int argc, char *argv[]) {
-    int num_philosophers = 5; // default
+    // DEFAULTS
+    int num_philosophers = 5; 
     int duration_seconds = 0; // default: run indefinitely
     
+    // FOR INPUT VERIFICATION
+    long tmp = 0;   // we will check for min and max to be safe to downcast to `int`
+    char *endptr;   // to indicate if there's junk/trailing junk in our string
+    errno = 0;      // to capture `strtol` error(s)
+
     // CLI Parsing
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--philosophers") == 0 && i + 1 < argc) {
-            num_philosophers = atoi(argv[++i]);
-            if (num_philosophers <= 0) {
-                num_philosophers = 5;
-            } 
+            tmp = strtol(argv[++i], &endptr, /*base =*/ 10);
+            if (errno != 0 || *endptr != '\0' || tmp <= 0 || tmp > INT_MAX) {
+                fprintf(stderr, "Invalid philosopher value: %s\n", argv[i]);
+                return EXIT_FAILURE;
+            }
+            num_philosophers = (int)tmp;
         } else if (strcmp(argv[i], "--duration") == 0 && i + 1 < argc) {
-            duration_seconds = atoi(argv[++i]);
-            if (duration_seconds < 0) {
-                duration_seconds = 0;
-            } 
+            tmp = strtol(argv[++i], &endptr, /*base =*/ 10);
+            if (errno != 0 || *endptr != '\0' || tmp < 0 || tmp > INT_MAX) {
+                fprintf(stderr, "Invalid duration value: %s\n", argv[i]);
+                return EXIT_FAILURE;
+            }
+            duration_seconds = (int)tmp;
         } else {
             fprintf(stderr, "Usage: %s [--philosophers N] [--duration SECONDS]\n", argv[0]);
             return EXIT_FAILURE;
         }
     }
 
+    // Allocate the overall simulation encapsulation context
     simulation_t *sim = malloc(sizeof(simulation_t));
     if (!sim) {
         fprintf(stderr, "ERROR: Failed to allocate for simulation\n");
