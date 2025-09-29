@@ -21,6 +21,7 @@
 /venv/
 /env/
 __pycache__/
+functional_tests/reports/
 /*.py[cod]
 *.pyo
 
