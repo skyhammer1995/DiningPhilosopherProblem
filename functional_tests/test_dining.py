@@ -47,7 +47,6 @@ def run_simulation(timeout=DEFAULT_TIME, extra_args=None):
 
     return result.returncode, stdout, stderr
 
-# this is not a great test, non-deterministic and relies on timing to cover all states
 def test_all_philosophers_ate():
     """ Test that all philosophers eventually ate at least once. """
     print("Running test: all philosophers ate at least once")
@@ -120,7 +119,6 @@ def test_large_number_of_philosophers():
     assert rc == 0
     assert re.search(r"starts eating", output)
     print("PASSED: Handled large philosophers, and had clean exit")
-
 
 def main():
     # Run all functional tests
