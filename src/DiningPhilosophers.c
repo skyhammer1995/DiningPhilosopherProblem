@@ -6,6 +6,13 @@
 #include <unistd.h>
 #include <string.h>
 
+/**
+ * Update: after helgrind analysis, we weren't using global lock order for our hashi.
+ *  i.e: Always lock the lower-index hashi first (99th thread would have 99 and 0 for left and right, 
+ *       don't do left then right, rather lowest to highest)
+ * I will try to keep with trylock
+ */
+
 void *philosopher_routine(void *arg) {
     philosopher_t *p = (philosopher_t *)arg; // cast back to philosopher_t ptr
     simulation_t *sim = p->sim;
@@ -13,6 +20,14 @@ void *philosopher_routine(void *arg) {
     if (sim->num_philosophers == 1) {
         return single_philosopher_routine(arg);
     }
+
+    // Get global indexes for the mutexes (based of the thread ids)
+    const int left_idx = p->id;
+    const int right_idx =(p->id + 1) % sim->num_philosophers;
+
+    // Update for global ordering/always attempt the lower indexed hashi first
+    pthread_mutex_t *first_hashi = (left_idx < right_idx) ? p->left_hashi : p->right_hashi;
+    pthread_mutex_t *second_hashi = (left_idx < right_idx) ? p->right_hashi : p->left_hashi;
 
     int left_neighbor = (p->id + sim->num_philosophers - 1) % sim->num_philosophers;
     int right_neighbor = (p->id + 1) % sim->num_philosophers;
@@ -23,8 +38,8 @@ void *philosopher_routine(void *arg) {
         sleep_ms(rand() % 1000 + 500); 
 
         // ATTEMPTING TO EAT
-        if (pthread_mutex_trylock(p->left_hashi) == 0) {         // Try to pick up left/personal hashi
-            if (pthread_mutex_trylock(p->right_hashi) == 0) {    // Try to pick up right/neighbor's hashi
+        if (pthread_mutex_trylock(first_hashi) == 0) {         // Try to pick up smallest global hashi
+            if (pthread_mutex_trylock(second_hashi) == 0) {    // Try to pick up the other hashi
                 // EAT
                 atomic_store(&p->state, EATING);
                 // This technically should not happen since we'd need to have the mutexes available to get here. 
@@ -43,12 +58,12 @@ void *philosopher_routine(void *arg) {
                 p->starvation_counter = 0;
 
                 // RELEASE HASHI
-                pthread_mutex_unlock(p->right_hashi);
-                pthread_mutex_unlock(p->left_hashi);
+                pthread_mutex_unlock(second_hashi);
+                pthread_mutex_unlock(first_hashi);
             } else {
-                // RIGHT HASHI IS UNAVAILABLE 
+                // SECOND HASHI IS UNAVAILABLE 
                 // Put the left down and try later
-                pthread_mutex_unlock(p->left_hashi);
+                pthread_mutex_unlock(first_hashi);
                 ++p->starvation_counter;
             }
         } else {
