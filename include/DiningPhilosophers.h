@@ -11,13 +11,16 @@ typedef enum {
     THINKING = 0,
     EATING = 1
 } philosopher_state_t;
+
 /** Violation detection for tests */
 typedef enum {
     OK = 0,
     VIOLATION = 1
 } violation_detection_t;
+
 // forward declaration
 typedef struct simulation simulation_t;
+
 /** Philosopher struct encapsulates each thread's info */
 typedef struct {
     int id;                                     // logging and easy identification
@@ -29,6 +32,7 @@ typedef struct {
     pthread_t thread_id;                        // thread identifier (don't use for math/only use for thread starting/joining etc.)
     simulation_t *sim;                          // points back to the overall simulation context
 } philosopher_t;
+
 /** Simulation context -- full encapsulation, no global variables in this version */
 struct simulation {
     int num_philosophers;

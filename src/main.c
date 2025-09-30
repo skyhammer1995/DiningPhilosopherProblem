@@ -67,7 +67,6 @@ int main (int argc, char *argv[]) {
     sim->hashi = malloc(sizeof(pthread_mutex_t) * sim->num_philosophers);
     if (!sim->hashi) {
         fprintf(stderr, "ERROR: Failed to allocate for hashi\n");
-        free(sim->hashi);
         free(sim);
 
         return EXIT_FAILURE;
@@ -77,7 +76,6 @@ int main (int argc, char *argv[]) {
     sim->philosophers = malloc(sizeof(philosopher_t) * sim->num_philosophers);
     if (!sim->philosophers) {
         fprintf(stderr, "ERROR: Failed to allocate for philosophers\n");
-        free(sim->philosophers);
         free(sim->hashi);
         free(sim);
 
