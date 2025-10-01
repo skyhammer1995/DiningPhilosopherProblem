@@ -13,7 +13,7 @@
 
 // cmocka API Documentation: https://api.cmocka.org/group__cmocka.html
 
-/*============== Impromptu Wrapper ==============*/
+/*============== Impromptu Wrapper for indefinite simulation ==============*/
 struct sim_args {
     simulation_t *sim;
     int duration;
@@ -179,6 +179,64 @@ static void test_start_indefinite_simulation_and_enable_stop_flag(void **state) 
     assert_true(atomic_load(&sim->stop_flag));
 }
 
+static void test_violation_during_philosopher_routine(void **state) {
+    simulation_t *sim = * (simulation_t **)state;
+
+    pthread_t thread_id;
+    struct sim_args args = {sim, 5};
+
+    int rc = pthread_create(&thread_id, NULL, start_indefinite_wrapper, &args);
+    assert_int_equal(rc, 0);
+
+    // Give moment to start everything
+    sleep(1);
+
+    // Set all philosophers to eating atomically
+    for (int i = 0; i < sim->num_philosophers; ++i) {
+        atomic_store(&sim->philosophers[i].state, EATING);
+    }
+
+    // Wait for this extra thread to finish
+    pthread_join(thread_id, NULL);
+
+    bool any_violation = false;
+    // Check violation flag was set by someone
+    for (int i = 0; i < sim->num_philosophers; ++i) {
+        if (sim->philosophers[i].violation_flag == VIOLATION) {
+            any_violation = true;
+            break;
+        }
+    }
+
+    assert_true(any_violation);
+}
+
+static void test_starving_philosopher_recovery(void **state) {
+    simulation_t *sim = * (simulation_t **)state;
+
+    pthread_t thread_id;
+    struct sim_args args = {sim, 5};
+
+    int rc = pthread_create(&thread_id, NULL, start_indefinite_wrapper, &args);
+    assert_int_equal(rc, 0);
+
+    // Give moment to start everything
+    sleep(1);
+
+    // Set all philosophers to starving
+    for (int i = 0; i < sim->num_philosophers; ++i) {
+        sim->philosophers[i].starvation_counter = 10;
+    }
+
+    // Wait for this extra thread to finish
+    pthread_join(thread_id, NULL);
+
+    // Check starving counters were recovered
+    for (int i = 0; i < sim->num_philosophers; ++i) {
+        assert_true(sim->philosophers[i].starvation_counter < 10);
+    }
+}
+
 /*============== Test Runner ==============*/
 int main(void) {
     const struct CMUnitTest tests[] = {
@@ -189,7 +247,9 @@ int main(void) {
         cmocka_unit_test_setup_teardown(test_start_simulation_with_invalid_num_philosophers, setup_simulation, teardown),
         cmocka_unit_test_setup_teardown(test_start_simulation_with_invalid_hashi, setup_simulation, teardown),
         cmocka_unit_test_setup_teardown(test_start_simulation_with_invalid_philosohpers, setup_simulation, teardown),
-        cmocka_unit_test_setup_teardown(test_start_indefinite_simulation_and_enable_stop_flag, setup_simulation, teardown)
+        cmocka_unit_test_setup_teardown(test_start_indefinite_simulation_and_enable_stop_flag, setup_simulation, teardown),
+        cmocka_unit_test_setup_teardown(test_violation_during_philosopher_routine, setup_simulation, teardown),
+        cmocka_unit_test_setup_teardown(test_starving_philosopher_recovery, setup_simulation, teardown)
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
