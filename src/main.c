@@ -2,7 +2,7 @@
     *  `Each philosopher should be simulated in their own thread.`
     *  `Each philosopher should wait for a random interval before starting to eat and then eat for a random interval before stopping.`
     *  `When a philosopher is eating, their neighbors may not eat.`
-        -  `One option is that they may give up and try to eat later` 
+        -  `One option is that they may give up and try to eat later`
         -  `Another option is to wait until the utensils they need are freed up`
     *  `There should be a way to tell when philosophers start or stop eating, such as a message log.`
     *  `The simulation should run endlessly until the program is stopped.`
@@ -23,9 +23,9 @@
 
 int main (int argc, char *argv[]) {
     // DEFAULTS
-    int num_philosophers = 5; 
+    int num_philosophers = 5;
     int duration_seconds = 0; // default: run indefinitely
-    
+
     // FOR INPUT VERIFICATION
     long tmp = 0;   // we will check for min and max to be safe to downcast to `int`
     char *endptr;   // to indicate if there's junk/trailing junk in our string
