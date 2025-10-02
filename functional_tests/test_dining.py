@@ -49,6 +49,7 @@ def run_simulation(timeout=DEFAULT_TIME, extra_args=None):
     return result.returncode, stdout, stderr
 
 # TESTS #
+# SANITY-esque TESTS #
 def test_all_philosophers_ate():
     """ Test that all philosophers eventually ate at least once. """
     print("Running test: all philosophers ate at least once")
@@ -87,6 +88,7 @@ def test_clean_exit():
     assert re.search(r"stops eating", output)
     print("PASSED: clean exit on short run")
 
+# INPUT and CLI Verification TESTS #
 @pytest.mark.parametrize("count", [-4, 0, 1, 9, 90])
 def test_varied_philosopher_values(count):
     """ Parametrized test that we can pass multiple types of values for philosophers """
@@ -113,6 +115,7 @@ def test_invalid_flag_strings(flags):
     assert re.search(r"(Invalid duration value:|Invalid philosopher value:)", err)
     print("PASSED: handled incorrect inputs")
 
+# REQUIREMENT/Deadlock/Livelock/Starvation type TESTS #
 @pytest.mark.slow # skip with -m "not slow"
 def test_detecting_starvation_warning_and_handling():
     """

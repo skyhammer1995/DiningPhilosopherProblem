@@ -4,7 +4,7 @@
 #include <pthread.h>
 #include <stdatomic.h>
 #include <stdbool.h>
-#include <stdarg.h> // need this for the `...` variadic in safe_printf's signature
+#include <stdarg.h> // need this for the `...` variable number of arguments in safe_printf's signature
 
 /*============== TYPEDEFS ==============*/
 /** Philosopher state for tests */
