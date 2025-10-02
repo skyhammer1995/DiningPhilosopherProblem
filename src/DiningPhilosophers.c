@@ -65,7 +65,7 @@ void *philosopher_routine(void *arg) {
                 pthread_mutex_unlock(first_hashi);
             } else {
                 // SECOND HASHI IS UNAVAILABLE
-                // Put the left down and try later
+                // Put the first hashi down and try later
                 pthread_mutex_unlock(first_hashi);
                 ++p->starvation_counter;
             }
