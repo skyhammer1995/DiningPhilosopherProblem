@@ -9,8 +9,8 @@
 /**
  * Update: after helgrind analysis, we weren't using global lock order for our hashi.
  *  i.e: Always lock the lower-index hashi first (99th thread would have 99 and 0 for left and right,
- *       don't do left then right, rather lowest to highest)
- *       I will try to stick with trylock to avoid blocking
+ *       don't do left then right, rather lowest to highest) this is to break the circular wait pattern.
+ *       I will try to stick with trylock to avoid blocking and break the hold and wait pattern.
  *
  * After pytest helgrind'ing, I'm realizing that the data races we're creating with our printfs need to be handled.
  * I will implement a safe_print helper
