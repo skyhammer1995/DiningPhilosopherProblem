@@ -43,6 +43,7 @@ static int setup_simulation(void **state) {
 
     // Initialize
     assert_int_equal(init_hashi(sim), 0);
+    // If we run the simulation, this will get overwritten, so keep that in mind during tests that need to verify parts of the philosophers!
     assert_int_equal(init_philosophers(sim), 0);
 
     *state = sim;
