@@ -1,8 +1,8 @@
 #!/bin/bash
 # runvalgrind.sh - Run valgrind on a specified binary (default: bin/testRunner)
 
-# FYI on shift, moves all positional arguments left, 
-# so make sure that we are handling each before shifting
+# Learned about this on shift: moves all positional arguments left,
+# so make sure that we are handling each argument before shifting
 
 # Default values
 TOOL="memcheck"
