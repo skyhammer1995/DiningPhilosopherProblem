@@ -1,10 +1,10 @@
 /** Requirements:
     *  `Each philosopher should be simulated in their own thread.`
-    *  `Each philosopher should wait for a random interval before starting to eat and then eat for a random interval before stopping.`
+    *  `Each philosopher should wait for a random interval before starting to eat and then eat for a random interval before stopping.` <-Should get clarification from Stakeholder in requirements meeting! (Single Philosopher edge case?)
     *  `When a philosopher is eating, their neighbors may not eat.`
         -  `One option is that they may give up and try to eat later`
         -  `Another option is to wait until the utensils they need are freed up`
-    *  `There should be a way to tell when philosophers start or stop eating, such as a message log.`
+    *  `There should be a way to tell when philosophers start or stop eating, such as a message log.` <-Should get clarification from Stakeholder in requirements meeting! (What are they looking for in the message? Specific logging message? Any loggers or on command line? etc.)
     *  `The simulation should run endlessly until the program is stopped.`
 */
 
